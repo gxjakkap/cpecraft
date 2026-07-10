@@ -14,13 +14,6 @@ import com.cpesu.cpecraft.db.StudentRecord;
 import com.cpesu.cpecraft.freeze.FreezeManager;
 import com.cpesu.cpecraft.luckperms.LuckPermsService;
 
-/**
- * Orchestrates the /verify flow: calls the (mocked, for now) student API,
- * persists a successful result, and unfreezes the player. The DB write
- * happens on whatever thread the API call completes on (fine for local
- * SQLite I/O); only the final player/world-touching step is hopped back
- * onto the main thread via {@code server.execute(...)}.
- */
 public final class VerificationService {
 	private final StudentApiClient apiClient;
 
@@ -33,6 +26,8 @@ public final class VerificationService {
 		String username = player.getGameProfile().name();
 		MinecraftServer server = player.level().getServer();
 
+		Cpecraft.LOGGER.info("Verification started for {} ({}), studentId='{}'", username, uuid, studentId);
+
 		apiClient.verify(studentId)
 				.thenCompose(result -> {
 					if (result.isEmpty()) {
@@ -41,18 +36,14 @@ public final class VerificationService {
 					StudentInfo info = result.get();
 					Cpecraft.studentRepository().save(new StudentRecord(
 							uuid, username, studentId, info.name(), info.batch(), System.currentTimeMillis()));
+					Cpecraft.LOGGER.info("Saved student record for {} ({}): studentId='{}', name='{}', batch='{}'",
+							username, uuid, studentId, info.name(), info.batch());
 					return assignBatchGroup(uuid, info.batch()).thenApply(v -> result);
 				})
-				.whenComplete((result, throwable) -> server.execute(() -> onComplete(server, uuid, result, throwable)));
+				.whenComplete((result, throwable) ->
+						server.execute(() -> onComplete(server, uuid, username, studentId, result, throwable)));
 	}
 
-	/**
-	 * Matches the API-reported batch against a batch created via
-	 * /createbatch and adds the player to its LuckPerms group. No FK
-	 * constraint between the two - if the batch isn't recognized (not
-	 * created yet, or not a valid number), this just logs and skips rather
-	 * than failing verification.
-	 */
 	private CompletableFuture<Void> assignBatchGroup(UUID uuid, String batch) {
 		int batchNumber;
 		try {
@@ -68,29 +59,50 @@ public final class VerificationService {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		return LuckPermsService.addToGroup(uuid, batchRecord.get().luckpermsGroup());
+		String group = batchRecord.get().luckpermsGroup();
+		Cpecraft.LOGGER.info("Assigning LuckPerms group '{}' to {} (batch {})", group, uuid, batchNumber);
+		return LuckPermsService.addToGroup(uuid, group)
+				.whenComplete((v, e) -> {
+					if (e != null) {
+						Cpecraft.LOGGER.warn("Failed to assign LuckPerms group '{}' to {}", group, uuid, e);
+					} else {
+						Cpecraft.LOGGER.info("Assigned LuckPerms group '{}' to {}", group, uuid);
+					}
+				});
 	}
 
-	private void onComplete(MinecraftServer server, UUID uuid, Optional<StudentInfo> result, Throwable throwable) {
+	private void onComplete(MinecraftServer server, UUID uuid, String username, String studentId,
+			Optional<StudentInfo> result, Throwable throwable) {
 		ServerPlayer player = server.getPlayerList().getPlayer(uuid);
 		if (player == null) {
-			return;
+			Cpecraft.LOGGER.info("{} ({}) disconnected before verification of studentId='{}' completed",
+					username, uuid, studentId);
 		}
 
 		if (throwable != null) {
-			Cpecraft.LOGGER.warn("Student verification API call failed for {}", uuid, throwable);
-			player.sendSystemMessage(Component.literal(
-					"Verification failed: could not reach the verification service. Try again."));
+			Cpecraft.LOGGER.warn("Verification errored for {} ({}), studentId='{}'", username, uuid, studentId, throwable);
+			if (player != null) {
+				player.sendSystemMessage(Component.literal(
+						"Verification failed: could not reach the verification service. Try again."));
+			}
 			return;
 		}
 
 		if (result.isEmpty()) {
-			player.sendSystemMessage(Component.literal(
-					"Verification failed: student ID not recognized. Try again with /verify <studentId>."));
+			Cpecraft.LOGGER.info("Verification rejected for {} ({}): studentId='{}' not recognized",
+					username, uuid, studentId);
+			if (player != null) {
+				player.sendSystemMessage(Component.literal(
+						"Verification failed: student ID not recognized. Try again with /verify <studentId>."));
+			}
 			return;
 		}
 
 		FreezeManager.unfreeze(uuid);
-		player.sendSystemMessage(Component.literal("Verified! Welcome, " + result.get().name() + "."));
+		Cpecraft.LOGGER.info("Verification succeeded for {} ({}): studentId='{}', name='{}' - unfrozen",
+				username, uuid, studentId, result.get().name());
+		if (player != null) {
+			player.sendSystemMessage(Component.literal("Verified! Welcome, " + result.get().name() + "."));
+		}
 	}
 }

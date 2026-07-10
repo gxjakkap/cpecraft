@@ -30,6 +30,9 @@ public final class VerifyCommand {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
 		String studentId = StringArgumentType.getString(ctx, "studentId");
 
+		Cpecraft.LOGGER.info("/verify run by {} ({}), input studentId='{}'",
+				player.getGameProfile().name(), player.getUUID(), studentId);
+
 		ctx.getSource().sendSuccess(() -> Component.literal("Checking student ID..."), false);
 		Cpecraft.verificationService().verify(player, studentId);
 		return 1;
