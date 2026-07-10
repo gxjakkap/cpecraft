@@ -1,0 +1,66 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	// LuckPerms API
+	maven {
+		name = 'LuckPerms'
+		url = 'https://repo.lucko.me/'
+	}
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Permission-check bridge to whatever permission mod (e.g. LuckPerms) is installed,
+	// with a graceful fallback to vanilla op-level when none is present. Bundled into
+	// the mod jar via `include` since it's a library, not an end-user-installed mod.
+	implementation "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
+	include "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
+
+	// LuckPerms API for programmatic group assignment. Not bundled: the LuckPerms
+	// Fabric plugin (installed separately by the server admin) provides the runtime
+	// implementation. Compile-only so we can reference the types without requiring it.
+	compileOnly "net.luckperms:api:${project.luckperms_api_version}"
+
+	// SQLite JDBC driver, bundled into the mod jar via jar-in-jar so server admins
+	// don't need to install anything extra.
+	implementation "org.xerial:sqlite-jdbc:${project.sqlite_jdbc_version}"
+	include "org.xerial:sqlite-jdbc:${project.sqlite_jdbc_version}"
+
+	// JSON for the config file and the YB API's responses. Bundled via `include`
+	// (with its transitive jackson-core/jackson-annotations) same as sqlite-jdbc above.
+	implementation "com.fasterxml.jackson.core:jackson-databind:${project.jackson_version}"
+	include "com.fasterxml.jackson.core:jackson-databind:${project.jackson_version}"
+	include "com.fasterxml.jackson.core:jackson-core:${project.jackson_version}"
+	include "com.fasterxml.jackson.core:jackson-annotations:${project.jackson_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
