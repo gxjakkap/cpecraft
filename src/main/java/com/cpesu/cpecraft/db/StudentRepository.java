@@ -39,6 +39,17 @@ public final class StudentRepository {
 		}
 	}
 
+	/** Returns true if a record was deleted. */
+	public boolean deleteByUuid(UUID uuid) {
+		String sql = "DELETE FROM students WHERE uuid = ?";
+		try (PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, uuid.toString());
+			return statement.executeUpdate() > 0;
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to delete student " + uuid, e);
+		}
+	}
+
 	public void save(StudentRecord record) {
 		String sql = """
 				INSERT INTO students (uuid, username, student_id, name, batch, verified_at)

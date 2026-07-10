@@ -3,12 +3,11 @@ package com.cpesu.cpecraft.welcome;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
 
 import com.cpesu.cpecraft.Cpecraft;
 import com.cpesu.cpecraft.motd.Markdown;
+import com.cpesu.cpecraft.util.Titles;
 
 /**
  * On join, shows a title: unverified players are told to /verify, verified
@@ -26,21 +25,16 @@ public final class WelcomeEventListeners {
 			boolean verified = Cpecraft.studentRepository().findByUuid(player.getUUID()).isPresent();
 
 			if (verified) {
-				sendTitle(player,
+				Titles.send(player,
 						Component.literal("Connected!"),
 						Component.literal(String.format("Welcome back, %s.", player.getGameProfile().name())));
 			} else {
-				sendTitle(player,
+				Titles.send(player,
 						Component.literal("Verification Required"),
 						Component.literal("Run /verify <studentId> to play"));
 			}
 
 			player.sendSystemMessage(Markdown.toComponent(Cpecraft.motdService().get()));
 		});
-	}
-
-	private static void sendTitle(ServerPlayer player, Component title, Component subtitle) {
-		player.connection.send(new ClientboundSetTitleTextPacket(title));
-		player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
 	}
 }

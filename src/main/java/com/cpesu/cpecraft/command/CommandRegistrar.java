@@ -17,6 +17,8 @@ public final class CommandRegistrar {
 			UserStatsCommand.register(dispatcher);
 			UserInfoCommand.register(dispatcher);
 			MotdCommand.register(dispatcher);
+			UnlinkCommand.register(dispatcher);
+			OverrideVerificationCommand.register(dispatcher);
 		});
 	}
 }

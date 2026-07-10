@@ -52,4 +52,6 @@ SQLite database at `config/cpecraft/data.db`, holding:
 | `/verify <studentId>` | none — always usable, including while frozen | |
 | `/motd` | none — viewable by anyone | Shows the current MOTD |
 | `/motd set <message>` | `cpecraft.command.motd` | Updates the MOTD, persisted to `config/cpecraft/motd.txt` |
+| `/unlink <player>` | `cpecraft.command.unlink` | Unverifies a player (works offline too), freeing their student ID for reuse; re-freezes them and revokes their batch's LuckPerms group if online |
+| `/overrideverification <player> <studentId> [batch]` | `cpecraft.command.overrideverification` | Manually marks a player verified without calling the YB API (for students not in the YB database yet); works offline too. `batch` is optional - omit to skip LuckPerms group assignment |
 
