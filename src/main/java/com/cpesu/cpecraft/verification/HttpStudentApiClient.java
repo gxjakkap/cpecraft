@@ -25,7 +25,7 @@ public final class HttpStudentApiClient implements StudentApiClient {
 
     @Override
     public CompletableFuture<Optional<StudentInfo>> verify(String studentId) {
-        URI uri = URI.create(String.format("%s/api/yb/get-info?id=%s", this.baseUri, studentId));
+        URI uri = URI.create(String.format("%s/api/yb/get-info/%s", this.baseUri, studentId));
         // Note: never log this.apiKey - it's a secret, sent only in the Authorization header below.
         Cpecraft.LOGGER.info("Calling YB API: GET {}", uri);
 
