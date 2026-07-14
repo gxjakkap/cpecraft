@@ -48,6 +48,18 @@ public final class Database implements AutoCloseable {
                         )
                         """);
                 statement.execute("""
+                        CREATE TABLE IF NOT EXISTS logout_location (
+                            uuid           TEXT PRIMARY KEY,
+                            x              REAL NOT NULL,
+                            y              REAL NOT NULL,
+                            z              REAL NOT NULL,
+                            x_rot          REAL NOT NULL,
+                            y_rot          REAL NOT NULL,
+                            dimension      TEXT NOT NULL,
+                            logged_out_at  INTEGER NOT NULL
+                        )
+                        """);
+                statement.execute("""
                         CREATE TABLE IF NOT EXISTS home (
                             uuid        TEXT NOT NULL,
                             name        TEXT NOT NULL,

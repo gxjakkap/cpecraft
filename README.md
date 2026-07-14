@@ -38,6 +38,7 @@ SQLite database at `config/cpecraft/data.db`, holding:
 - `batches` — batch number → LuckPerms group bindings, created via
   `/createbatch`
 - `home` — per-player named homes (position, rotation, dimension, default flag)
+- `logout_location` — each player's last logout position/rotation/dimension, for `/tpoff`
 - `config` — misc key/value settings (e.g. `max_home_quota`, `spawn_x/y/z`)
 
 ## Commands
@@ -61,4 +62,6 @@ SQLite database at `config/cpecraft/data.db`, holding:
 | `/listhome` (alias `/lh`) | none | Lists your homes, tagging the default one |
 | `/defaulthome <name>` | none | Marks a home as your default; only one default at a time, setting a new one moves the flag |
 | `/delhome <name>` | none | Deletes a home |
+| `/tphere <player>` (alias `/s`) | `cpecraft.command.tphere` | Teleports the target player to you |
+| `/tpoff <player>` | `cpecraft.command.tpoff` | Teleports you to a player's last logout location; works even if they're currently offline |
 

@@ -5,7 +5,9 @@ import java.net.URI;
 import com.cpesu.cpecraft.db.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.level.ServerPlayer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ public class Cpecraft implements ModInitializer {
 	private static BatchRepository batchRepository;
     private static ConfigRepository configRepository;
     private static HomeRepository homeRepository;
+    private static LogoutLocationRepository logoutLocationRepository;
 	private static VerificationService verificationService;
 	private static MotdService motdService;
 
@@ -41,11 +44,19 @@ public class Cpecraft implements ModInitializer {
         configRepository = new ConfigRepository(database);
 		batchRepository = new BatchRepository(database);
         homeRepository = new HomeRepository(database);
+        logoutLocationRepository = new LogoutLocationRepository(database);
 		verificationService = new VerificationService(
 				new HttpStudentApiClient(URI.create(config.ybApiBaseUrl()), config.ybApiKey()));
 		motdService = new MotdService(FabricLoader.getInstance().getConfigDir());
 
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> database.close());
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+			ServerPlayer player = handler.getPlayer();
+			logoutLocationRepository.save(new LogoutLocationRecord(
+					player.getUUID(), player.getX(), player.getY(), player.getZ(),
+					player.getXRot(), player.getYRot(), player.level().dimension(),
+					System.currentTimeMillis()));
+		});
 
 		CommandRegistrar.register();
 		FreezeEventListeners.register();
@@ -74,4 +85,6 @@ public class Cpecraft implements ModInitializer {
 	}
 
     public static HomeRepository homeRepository() { return homeRepository; }
+
+    public static LogoutLocationRepository logoutLocationRepository() { return logoutLocationRepository; }
 }

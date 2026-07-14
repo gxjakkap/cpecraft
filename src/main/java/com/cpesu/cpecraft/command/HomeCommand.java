@@ -31,7 +31,7 @@ public final class HomeCommand {
     private static int execute(CommandContext<CommandSourceStack> ctx, String homeName, ServerPlayer player) {
         UUID uuid = player.getUUID();
         if (HomeTeleportManager.isPending(uuid)) {
-            ctx.getSource().sendFailure(Component.literal("You're already teleporting - stand still."));
+            ctx.getSource().sendFailure(Component.literal("You're already teleporting."));
             return 0;
         }
 
@@ -46,7 +46,7 @@ public final class HomeCommand {
         HomeTeleportManager.start(uuid, target, player.position(), player.level().dimension(),
                 ctx.getSource().getServer().getTickCount());
         ctx.getSource().sendSuccess(() -> Component.literal(
-                "Teleporting to '" + target.name() + "' in 3 seconds - don't move!"), false);
+                "Teleporting to '" + target.name() + "' in 3 seconds. Don't move!"), false);
         return 1;
     }
 
@@ -61,6 +61,6 @@ public final class HomeCommand {
         }
 
         List<HomeRecord> homes = Cpecraft.homeRepository().findByUuid(uuid);
-        return homes.isEmpty() ? null : homes.get(0);
+        return homes.isEmpty() ? null : homes.getFirst();
     }
 }

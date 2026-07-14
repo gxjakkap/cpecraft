@@ -32,6 +32,8 @@ public final class CommandRegistrar {
             ListHomeCommand.register(dispatcher);
             DefaultHomeCommand.register(dispatcher);
             DelHomeCommand.register(dispatcher);
+            TpHereCommand.register(dispatcher);
+            TpOffCommand.register(dispatcher);
 		});
 	}
 }
