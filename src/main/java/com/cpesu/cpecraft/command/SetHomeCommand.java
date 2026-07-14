@@ -3,6 +3,7 @@ package com.cpesu.cpecraft.command;
 import com.cpesu.cpecraft.Cpecraft;
 import com.cpesu.cpecraft.db.ConfigRecord;
 import com.cpesu.cpecraft.db.HomeRecord;
+import com.cpesu.cpecraft.freeze.FreezeManager;
 import com.cpesu.cpecraft.permission.CpecraftPermissions;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -41,14 +42,14 @@ public final class SetHomeCommand {
                                         ctx.getSource().getPlayerOrException()
                                 )
                         )
-                )
-                .then(Commands.argument("isDefault", BoolArgumentType.bool())
-                        .executes(ctx ->
-                                set(
-                                        ctx,
-                                        StringArgumentType.getString(ctx, "home"),
-                                        ctx.getSource().getPlayerOrException(),
-                                        BoolArgumentType.getBool(ctx, "isDefault")
+                        .then(Commands.argument("isDefault", BoolArgumentType.bool())
+                                .executes(ctx ->
+                                        set(
+                                                ctx,
+                                                StringArgumentType.getString(ctx, "home"),
+                                                ctx.getSource().getPlayerOrException(),
+                                                BoolArgumentType.getBool(ctx, "isDefault")
+                                        )
                                 )
                         )
                 )
@@ -60,6 +61,11 @@ public final class SetHomeCommand {
     }
 
     private static int set(CommandContext<CommandSourceStack> ctx, String homeName, ServerPlayer player, boolean isDefault) throws CommandSyntaxException {
+        if (FreezeManager.isFrozen(player.getUUID())){
+            ctx.getSource().sendSuccess(() -> Component.literal("You need to verify yourself first before using this command!"), false);
+            return 0;
+        }
+
         if (!homeName.matches(HOME_NAME)) {
             ctx.getSource().sendFailure(Component.literal(
                     "Home name must be 1-16 characters: letters, numbers, _ only."));
