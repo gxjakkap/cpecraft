@@ -68,7 +68,9 @@ public final class GodItemCommand {
 		if (customName != null) {
 			item.set(DataComponents.CUSTOM_NAME, Component.literal(customName));
 		}
-		player.getInventory().add(item);
+		if (!player.getInventory().add(item)) {
+			player.drop(item, false);
+		}
 
 		ctx.getSource().sendSuccess(() -> Component.literal("Gave yourself " + name + "."), true);
 		return 1;
