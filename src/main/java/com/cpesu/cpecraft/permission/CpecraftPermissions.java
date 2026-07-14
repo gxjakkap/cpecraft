@@ -30,6 +30,9 @@ public final class CpecraftPermissions {
 	public static final String PLAYERLIST = "cpecraft.command.playerlist";
 	public static final String TPHERE = "cpecraft.command.tphere";
 	public static final String TPOFF = "cpecraft.command.tpoff";
+	public static final String ADMIN_HOME = "cpecraft.command.adminhome";
+	public static final String GIVE_ITEM = "cpecraft.command.giveitem";
+	public static final String GOD_ITEM = "cpecraft.command.goditem";
     public static final String BYPASS_MAX_HOME_QUOTA = "cpecraft.command.home.quotabypass";
 
 	private static final PermissionLevel DEFAULT_OP_LEVEL = PermissionLevel.GAMEMASTERS;

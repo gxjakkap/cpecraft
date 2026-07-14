@@ -8,6 +8,8 @@ public final class CommandRegistrar {
 
 	public static void register() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+			GiveItemCommand.register(dispatcher, registryAccess);
+			GodItemCommand.register(dispatcher, registryAccess);
 			CreateBatchCommand.register(dispatcher);
 			ListBatchesCommand.register(dispatcher);
 			DeleteBatchCommand.register(dispatcher);
@@ -34,6 +36,9 @@ public final class CommandRegistrar {
             DelHomeCommand.register(dispatcher);
             TpHereCommand.register(dispatcher);
             TpOffCommand.register(dispatcher);
+            AHomeCommand.register(dispatcher);
+            AListHomeCommand.register(dispatcher);
+            ADelHomeCommand.register(dispatcher);
 		});
 	}
 }

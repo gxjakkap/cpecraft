@@ -50,7 +50,7 @@ public final class HomeCommand {
         return 1;
     }
 
-    private static HomeRecord resolveHome(UUID uuid, String homeName) {
+    static HomeRecord resolveHome(UUID uuid, String homeName) {
         if (homeName != null) {
             return Cpecraft.homeRepository().findByPlayerUuidAndHomeName(uuid, homeName.toLowerCase()).orElse(null);
         }

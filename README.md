@@ -64,4 +64,7 @@ SQLite database at `config/cpecraft/data.db`, holding:
 | `/delhome <name>` | none | Deletes a home |
 | `/tphere <player>` (alias `/s`) | `cpecraft.command.tphere` | Teleports the target player to you |
 | `/tpoff <player>` | `cpecraft.command.tpoff` | Teleports you to a player's last logout location; works even if they're currently offline |
+| `/ahome <player> [name]` | `cpecraft.command.adminhome` | Teleports you to another player's named/default/oldest home (same resolution as `/home`); works offline too |
+| `/alisthome <player>` | `cpecraft.command.adminhome` | Lists another player's homes; works offline too |
+| `/adelhome <player> <name>` | `cpecraft.command.adminhome` | Deletes another player's home; works offline too |
 
