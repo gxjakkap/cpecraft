@@ -37,6 +37,8 @@ SQLite database at `config/cpecraft/data.db`, holding:
   the verification API, verified-at timestamp)
 - `batches` — batch number → LuckPerms group bindings, created via
   `/createbatch`
+- `home` — per-player named homes (position, rotation, dimension, default flag)
+- `config` — misc key/value settings (e.g. `max_home_quota`, `spawn_x/y/z`)
 
 ## Commands
 
@@ -54,4 +56,9 @@ SQLite database at `config/cpecraft/data.db`, holding:
 | `/motd set <message>` | `cpecraft.command.motd` | Updates the MOTD, persisted to `config/cpecraft/motd.txt` |
 | `/unlink <player>` | `cpecraft.command.unlink` | Unverifies a player (works offline too), freeing their student ID for reuse; re-freezes them and revokes their batch's LuckPerms group if online |
 | `/overrideverification <player> <studentId> [batch]` | `cpecraft.command.overrideverification` | Manually marks a player verified without calling the YB API (for students not in the YB database yet); works offline too. `batch` is optional - omit to skip LuckPerms group assignment |
+| `/sethome [name]` | none | Saves your current position as a home (default name `home`); capped by the admin-set `max_home_quota` config value unless you have `cpecraft.command.home.quotabypass` |
+| `/home [name]` (alias `/h`) | none | Teleports to a named home, or your default home, or your oldest home if no default is set; requires standing still for 3 seconds first, to stop it being used to escape combat |
+| `/listhome` (alias `/lh`) | none | Lists your homes, tagging the default one |
+| `/defaulthome <name>` | none | Marks a home as your default; only one default at a time, setting a new one moves the flag |
+| `/delhome <name>` | none | Deletes a home |
 

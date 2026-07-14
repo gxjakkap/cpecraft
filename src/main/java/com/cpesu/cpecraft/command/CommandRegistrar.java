@@ -27,6 +27,11 @@ public final class CommandRegistrar {
             SpawnCommand.register(dispatcher);
             SetSpawnCommand.register(dispatcher);
             PlayerListCommand.register(dispatcher);
+            SetHomeCommand.register(dispatcher);
+            HomeCommand.register(dispatcher);
+            ListHomeCommand.register(dispatcher);
+            DefaultHomeCommand.register(dispatcher);
+            DelHomeCommand.register(dispatcher);
 		});
 	}
 }
