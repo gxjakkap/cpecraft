@@ -14,10 +14,6 @@ import net.minecraft.world.phys.Vec3;
 import com.cpesu.cpecraft.db.HomeRecord;
 import com.cpesu.cpecraft.home.HomeTeleportManager.PendingTeleport;
 
-/**
- * Enforces the /home stand-still delay every tick, and clears any pending
- * teleport on disconnect so a stale entry can't leak across reconnects.
- */
 public final class HomeEventListeners {
 	private static final double CANCEL_EPSILON_SQR = 0.01;
 

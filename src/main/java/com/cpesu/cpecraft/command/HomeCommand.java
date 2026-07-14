@@ -2,6 +2,7 @@ package com.cpesu.cpecraft.command;
 
 import com.cpesu.cpecraft.Cpecraft;
 import com.cpesu.cpecraft.db.HomeRecord;
+import com.cpesu.cpecraft.freeze.FreezeManager;
 import com.cpesu.cpecraft.home.HomeTeleportManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -30,6 +31,12 @@ public final class HomeCommand {
 
     private static int execute(CommandContext<CommandSourceStack> ctx, String homeName, ServerPlayer player) {
         UUID uuid = player.getUUID();
+
+        if (FreezeManager.isFrozen(uuid)){
+            ctx.getSource().sendSuccess(() -> Component.literal("You need to verify yourself first before using this command!"), false);
+            return 0;
+        }
+
         if (HomeTeleportManager.isPending(uuid)) {
             ctx.getSource().sendFailure(Component.literal("You're already teleporting."));
             return 0;

@@ -9,17 +9,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import com.cpesu.cpecraft.db.HomeRecord;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * Tracks in-progress /home teleports. A request only fires after the player
- * has stood still for HOME_DELAY_TICKS, so /home can't be used to instantly
- * escape combat or mobs - see {@link HomeEventListeners} for the tick check
- * that enforces this and performs the eventual teleport.
- */
 public final class HomeTeleportManager {
 	public static final int HOME_DELAY_TICKS = 60;
 
-	public record PendingTeleport(HomeRecord target, Vec3 anchorPos, ResourceKey<Level> anchorDimension, long readyAtTick) {
+	public record PendingTeleport(HomeRecord target, Vec3 anchorPos, ResourceKey<@NotNull Level> anchorDimension, long readyAtTick) {
 	}
 
 	private static final Map<UUID, PendingTeleport> pending = new ConcurrentHashMap<>();
@@ -27,7 +22,7 @@ public final class HomeTeleportManager {
 	private HomeTeleportManager() {
 	}
 
-	public static void start(UUID uuid, HomeRecord target, Vec3 anchorPos, ResourceKey<Level> anchorDimension, long currentTick) {
+	public static void start(UUID uuid, HomeRecord target, Vec3 anchorPos, ResourceKey<@NotNull Level> anchorDimension, long currentTick) {
 		pending.put(uuid, new PendingTeleport(target, anchorPos, anchorDimension, currentTick + HOME_DELAY_TICKS));
 	}
 
