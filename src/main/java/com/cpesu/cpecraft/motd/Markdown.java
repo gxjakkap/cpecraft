@@ -57,7 +57,7 @@ public final class Markdown {
 
 	public static MutableComponent toComponent(String text) {
 		MutableComponent result = Component.empty();
-		for (Segment segment : tokenize(text)) {
+		for (Segment segment : tokenize(text.replace("\\n", "\n"))) {
 			MutableComponent part = Component.literal(segment.text());
 			switch (segment.emphasis()) {
 				case BOLD -> part = part.withStyle(Style.EMPTY.withBold(true));
