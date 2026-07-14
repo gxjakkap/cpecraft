@@ -2,6 +2,7 @@ package com.cpesu.cpecraft;
 
 import java.net.URI;
 
+import com.cpesu.cpecraft.db.ConfigRepository;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -28,6 +29,7 @@ public class Cpecraft implements ModInitializer {
 	private static Database database;
 	private static StudentRepository studentRepository;
 	private static BatchRepository batchRepository;
+    private static ConfigRepository configRepository;
 	private static VerificationService verificationService;
 	private static MotdService motdService;
 
@@ -37,6 +39,7 @@ public class Cpecraft implements ModInitializer {
 
 		database = new Database(FabricLoader.getInstance().getConfigDir());
 		studentRepository = new StudentRepository(database);
+        configRepository = new ConfigRepository(database);
 		batchRepository = new BatchRepository(database);
 		verificationService = new VerificationService(
 				new HttpStudentApiClient(URI.create(config.ybApiBaseUrl()), config.ybApiKey()));
@@ -58,6 +61,8 @@ public class Cpecraft implements ModInitializer {
 	public static BatchRepository batchRepository() {
 		return batchRepository;
 	}
+
+    public static ConfigRepository configRepository() { return configRepository; }
 
 	public static VerificationService verificationService() {
 		return verificationService;

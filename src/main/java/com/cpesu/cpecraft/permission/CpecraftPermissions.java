@@ -26,6 +26,8 @@ public final class CpecraftPermissions {
 	public static final String MOTD = "cpecraft.command.motd";
 	public static final String UNLINK = "cpecraft.command.unlink";
 	public static final String OVERRIDE_VERIFICATION = "cpecraft.command.overrideverification";
+	public static final String SET_SPAWN = "cpecraft.command.setspawn";
+	public static final String PLAYERLIST = "cpecraft.command.playerlist";
 
 	private static final PermissionLevel DEFAULT_OP_LEVEL = PermissionLevel.GAMEMASTERS;
 

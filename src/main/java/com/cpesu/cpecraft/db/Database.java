@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -44,10 +45,30 @@ public final class Database implements AutoCloseable {
 							display_name    TEXT NOT NULL
 						)
 						""");
+                statement.execute("""
+						CREATE TABLE IF NOT EXISTS config (
+							key     TEXT PRIMARY KEY,
+							value   TEXT
+						)
+						""");
+
+                // for migration after table is created
+				ensureColumn(statement, "students", "nickname", "TEXT");
 			}
 		} catch (IOException | SQLException e) {
 			throw new RuntimeException("Failed to initialize cpecraft database", e);
 		}
+	}
+
+	private static void ensureColumn(Statement statement, String table, String column, String type) throws SQLException {
+		try (ResultSet rs = statement.executeQuery("PRAGMA table_info(" + table + ")")) {
+			while (rs.next()) {
+				if (rs.getString("name").equalsIgnoreCase(column)) {
+					return;
+				}
+			}
+		}
+		statement.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
 	}
 
 	public Connection connection() {

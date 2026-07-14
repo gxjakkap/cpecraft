@@ -36,7 +36,7 @@ public final class VerificationService {
 					}
 					StudentInfo info = result.get();
 					Cpecraft.studentRepository().save(new StudentRecord(
-							uuid, username, studentId, info.name(), info.batch(), System.currentTimeMillis()));
+							uuid, username, studentId, info.name(), info.nickName(), info.batch(), System.currentTimeMillis()));
 					Cpecraft.LOGGER.info("Saved student record for {} ({}): studentId='{}', name='{}', batch='{}'",
 							username, uuid, studentId, info.name(), info.batch());
 					return assignBatchGroup(uuid, info.batch()).thenApply(v -> result);
@@ -91,7 +91,7 @@ public final class VerificationService {
 				username, uuid, studentId, batch);
 
 		Cpecraft.studentRepository().save(new StudentRecord(
-				uuid, username, studentId, username, batch, System.currentTimeMillis()));
+				uuid, username, studentId, username, username, batch, System.currentTimeMillis()));
 		Cpecraft.LOGGER.info("Saved overridden student record for {} ({}): studentId='{}'", username, uuid, studentId);
 
 		CompletableFuture<Void> groupChange = (batch == null || batch.isBlank())

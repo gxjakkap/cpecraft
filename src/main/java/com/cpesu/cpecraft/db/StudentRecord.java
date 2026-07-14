@@ -7,6 +7,7 @@ public record StudentRecord(
 		String username,
 		String studentId,
 		String name,
+        String nickName,
 		String batch,
 		long verifiedAt) {
 }
