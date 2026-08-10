@@ -18,9 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,16 +71,19 @@ public final class PlayerListCommand {
 			ctx.getSource().sendSuccess(() -> Component.literal("CPE " + entry.getKey() + ":"), false);
 			for (StudentRecord student : entry.getValue()) {
 				ServerPlayer onlinePlayer = server.getPlayerList().getPlayer(student.uuid());
-				String status = onlinePlayer != null ? "online" : "offline";
 				String joinDate = JOIN_DATE_FORMAT.format(Instant.ofEpochMilli(student.verifiedAt()));
 				String lastJoin = student.lastJoinAt() == null ? "never" : formatLastJoin(student.lastJoinAt());
 				String playtime = playTimeStat.format(onlinePlayer != null
 						? onlinePlayer.getStats().getValue(playTimeStat)
 						: readOfflinePlayTime(server, student.uuid()));
 
-				String line = "  " + student.username() + " (" + student.nickName() + ") [" + status
-						+ "] - joined " + joinDate + " - last seen " + lastJoin + " - playtime " + playtime;
-				ctx.getSource().sendSuccess(() -> Component.literal(line), false);
+				MutableComponent name = Component.literal("  " + student.username());
+				if (onlinePlayer != null) {
+					name = name.withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+				}
+				MutableComponent line = name.append(Component.literal(" (" + student.nickName() + ")"
+						+ ":\n    joined " + joinDate + "\n    last seen " + lastJoin + "\n    playtime " + playtime));
+				ctx.getSource().sendSuccess(() -> line, false);
 			}
 		}
 		return students.size();
