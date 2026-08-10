@@ -53,6 +53,4 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           body: ${{ github.event.head_commit.message }}
-          files: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
+          files: build/libs/cpecraft-${{ steps.version.outputs.version }}.jar
