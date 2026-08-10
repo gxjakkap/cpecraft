@@ -9,7 +9,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.players.NameAndId;
 
 import com.cpesu.cpecraft.Cpecraft;
@@ -37,9 +40,14 @@ public final class AListHomeCommand {
 
 		ctx.getSource().sendSuccess(() -> Component.literal(target.name() + "'s homes (" + homes.size() + "):"), false);
 		for (HomeRecord home : homes) {
-			ctx.getSource().sendSuccess(() -> Component.literal(String.format(
-					"  %s%s - %.1f, %.1f, %.1f",
-					home.name(), home.isDefault() ? " [default]" : "", home.x(), home.y(), home.z())), false);
+			ctx.getSource().sendSuccess(() -> {
+				MutableComponent line = Component.literal(String.format(
+						" - %s%s: ", home.name(), home.isDefault() ? " [default]" : ""));
+				MutableComponent coords = Component.literal(String.format("[%.1f, %.1f, %.1f]", home.x(), home.y(), home.z()))
+						.withStyle(Style.EMPTY.withClickEvent(
+								new ClickEvent.RunCommand("/ahome " + target.name() + " " + home.name())));
+				return line.append(coords);
+			}, false);
 		}
 		return homes.size();
 	}
