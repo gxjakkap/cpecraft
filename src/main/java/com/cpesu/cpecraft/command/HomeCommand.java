@@ -3,7 +3,7 @@ package com.cpesu.cpecraft.command;
 import com.cpesu.cpecraft.Cpecraft;
 import com.cpesu.cpecraft.db.HomeRecord;
 import com.cpesu.cpecraft.freeze.FreezeManager;
-import com.cpesu.cpecraft.home.HomeTeleportManager;
+import com.cpesu.cpecraft.teleport.TeleportManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -12,6 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public final class HomeCommand {
             return 0;
         }
 
-        if (HomeTeleportManager.isPending(uuid)) {
+        if (TeleportManager.isPending(uuid)) {
             ctx.getSource().sendFailure(Component.literal("You're already teleporting."));
             return 0;
         }
@@ -50,7 +51,11 @@ public final class HomeCommand {
             return 0;
         }
 
-        HomeTeleportManager.start(uuid, target, player.position(), player.level().dimension(),
+        TeleportManager.Destination destination = new TeleportManager.Destination(
+                target.dimension(), new Vec3(target.x(), target.y(), target.z()),
+                target.yRot().floatValue(), target.xRot().floatValue(),
+                "Teleported to home '" + target.name() + "'.");
+        TeleportManager.start(uuid, destination, player.position(), player.level().dimension(),
                 ctx.getSource().getServer().getTickCount());
         ctx.getSource().sendSuccess(() -> Component.literal(
                 "Teleporting to '" + target.name() + "' in 3 seconds. Don't move!"), false);

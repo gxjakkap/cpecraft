@@ -25,6 +25,7 @@ public final class WelcomeEventListeners {
 			boolean verified = Cpecraft.studentRepository().findByUuid(player.getUUID()).isPresent();
 
 			if (verified) {
+				Cpecraft.studentRepository().updateLastJoin(player.getUUID(), System.currentTimeMillis());
 				Titles.send(player,
 						Component.literal("Connected!"),
 						Component.literal(String.format("Welcome back, %s.", player.getGameProfile().name())));

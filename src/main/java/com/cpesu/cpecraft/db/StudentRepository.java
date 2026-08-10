@@ -21,21 +21,14 @@ public final class StudentRepository {
 	}
 
 	public Optional<StudentRecord> findByUuid(UUID uuid) {
-		String sql = "SELECT uuid, username, student_id, name, nickname, batch, verified_at FROM students WHERE uuid = ?";
+		String sql = "SELECT uuid, username, student_id, name, nickname, batch, verified_at, last_join_at FROM students WHERE uuid = ?";
 		try (PreparedStatement statement = connection.prepareStatement(sql)) {
 			statement.setString(1, uuid.toString());
 			try (ResultSet rs = statement.executeQuery()) {
 				if (!rs.next()) {
 					return Optional.empty();
 				}
-				return Optional.of(new StudentRecord(
-						UUID.fromString(rs.getString("uuid")),
-						rs.getString("username"),
-						rs.getString("student_id"),
-						rs.getString("name"),
-                        rs.getString("nickname"),
-						rs.getString("batch"),
-						rs.getLong("verified_at")));
+				return Optional.of(toRecord(rs));
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to look up student " + uuid, e);
@@ -43,23 +36,41 @@ public final class StudentRepository {
 	}
 
 	public List<StudentRecord> findAll() {
-		String sql = "SELECT uuid, username, student_id, name, nickname, batch, verified_at FROM students ORDER BY batch, username";
+		String sql = "SELECT uuid, username, student_id, name, nickname, batch, verified_at, last_join_at FROM students ORDER BY batch, username";
 		List<StudentRecord> students = new ArrayList<>();
 		try (PreparedStatement statement = connection.prepareStatement(sql);
 				ResultSet rs = statement.executeQuery()) {
 			while (rs.next()) {
-				students.add(new StudentRecord(
-						UUID.fromString(rs.getString("uuid")),
-						rs.getString("username"),
-						rs.getString("student_id"),
-						rs.getString("name"),
-						rs.getString("nickname"),
-						rs.getString("batch"),
-						rs.getLong("verified_at")));
+				students.add(toRecord(rs));
 			}
 			return students;
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to list students", e);
+		}
+	}
+
+	private static StudentRecord toRecord(ResultSet rs) throws SQLException {
+		long lastJoinAt = rs.getLong("last_join_at");
+		return new StudentRecord(
+				UUID.fromString(rs.getString("uuid")),
+				rs.getString("username"),
+				rs.getString("student_id"),
+				rs.getString("name"),
+				rs.getString("nickname"),
+				rs.getString("batch"),
+				rs.getLong("verified_at"),
+				rs.wasNull() ? null : lastJoinAt);
+	}
+
+	/** Updates the last-join timestamp for a player, leaving the rest of their record untouched. */
+	public void updateLastJoin(UUID uuid, long timestamp) {
+		String sql = "UPDATE students SET last_join_at = ? WHERE uuid = ?";
+		try (PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setLong(1, timestamp);
+			statement.setString(2, uuid.toString());
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to update last join for " + uuid, e);
 		}
 	}
 

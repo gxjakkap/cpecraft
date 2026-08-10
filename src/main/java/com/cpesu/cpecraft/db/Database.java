@@ -31,7 +31,8 @@ public final class Database implements AutoCloseable {
                         	name          TEXT,
                         	nickname      TEXT,
                         	batch         TEXT,
-                        	verified_at   INTEGER NOT NULL
+                        	verified_at   INTEGER NOT NULL,
+                        	last_join_at  INTEGER
                         )
                         """);
                 statement.execute("""
@@ -77,6 +78,7 @@ public final class Database implements AutoCloseable {
 
                 // for migration after table is created
                 ensureColumn(statement, "students", "nickname", "TEXT");
+                ensureColumn(statement, "students", "last_join_at", "INTEGER");
                 ensureColumn(statement, "home", "x_rot", "REAL NOT NULL DEFAULT 0");
                 ensureColumn(statement, "home", "y_rot", "REAL NOT NULL DEFAULT 0");
                 ensureColumn(statement, "home", "is_default", "BOOLEAN NOT NULL DEFAULT FALSE");

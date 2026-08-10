@@ -1,5 +1,6 @@
 package com.cpesu.cpecraft.home;
 
+import com.cpesu.cpecraft.teleport.TeleportManager;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -11,8 +12,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
-import com.cpesu.cpecraft.db.HomeRecord;
-import com.cpesu.cpecraft.home.HomeTeleportManager.PendingTeleport;
+import com.cpesu.cpecraft.teleport.TeleportManager.Destination;
+import com.cpesu.cpecraft.teleport.TeleportManager.PendingTeleport;
 
 public final class HomeEventListeners {
 	private static final double CANCEL_EPSILON_SQR = 0.01;
@@ -23,10 +24,10 @@ public final class HomeEventListeners {
 	public static void register() {
 		ServerTickEvents.END_SERVER_TICK.register(HomeEventListeners::tickPendingTeleports);
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
-				HomeTeleportManager.cancel(handler.getPlayer().getUUID()));
+				TeleportManager.cancel(handler.getPlayer().getUUID()));
 
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseAmount, amount, blocked) -> {
-			if (entity instanceof ServerPlayer player && HomeTeleportManager.isPending(player.getUUID())) {
+			if (entity instanceof ServerPlayer player && TeleportManager.isPending(player.getUUID())) {
 				cancelPending(player, "you took damage");
 			}
 		});
@@ -34,7 +35,7 @@ public final class HomeEventListeners {
 
 	private static void tickPendingTeleports(MinecraftServer server) {
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			PendingTeleport pendingTeleport = HomeTeleportManager.get(player.getUUID());
+			PendingTeleport pendingTeleport = TeleportManager.get(player.getUUID());
 			if (pendingTeleport == null) {
 				continue;
 			}
@@ -47,30 +48,28 @@ public final class HomeEventListeners {
 			}
 
 			if (server.getTickCount() >= pendingTeleport.readyAtTick()) {
-				HomeTeleportManager.cancel(player.getUUID());
-				teleportHome(server, player, pendingTeleport.target());
+				TeleportManager.cancel(player.getUUID());
+				executeTeleport(server, player, pendingTeleport.target());
 			}
 		}
 	}
 
 	private static void cancelPending(ServerPlayer player, String reason) {
-		HomeTeleportManager.cancel(player.getUUID());
+		TeleportManager.cancel(player.getUUID());
 		player.sendSystemMessage(Component.literal("Teleport cancelled - " + reason + "."));
 	}
 
-	private static void teleportHome(MinecraftServer server, ServerPlayer player, HomeRecord home) {
-		ServerLevel level = server.getLevel(home.dimension());
+	private static void executeTeleport(MinecraftServer server, ServerPlayer player, Destination destination) {
+		ServerLevel level = server.getLevel(destination.dimension());
 		if (level == null) {
-			player.sendSystemMessage(Component.literal(
-					"Home '" + home.name() + "' is in a dimension that no longer exists."));
+			player.sendSystemMessage(Component.literal("That destination is in a dimension that no longer exists."));
 			return;
 		}
 
 		TeleportTransition transition = new TeleportTransition(
-				level, new Vec3(home.x(), home.y(), home.z()), Vec3.ZERO,
-				home.yRot().floatValue(), home.xRot().floatValue(), TeleportTransition.DO_NOTHING);
+				level, destination.pos(), Vec3.ZERO, destination.yRot(), destination.xRot(), TeleportTransition.DO_NOTHING);
 		player.stopRiding();
 		player.teleport(transition);
-		player.sendSystemMessage(Component.literal("Teleported to home '" + home.name() + "'."));
+		player.sendSystemMessage(Component.literal(destination.successMessage()));
 	}
 }

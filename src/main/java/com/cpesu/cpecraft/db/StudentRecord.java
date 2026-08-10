@@ -9,5 +9,6 @@ public record StudentRecord(
 		String name,
         String nickName,
 		String batch,
-		long verifiedAt) {
+		long verifiedAt,
+		Long lastJoinAt) {
 }
