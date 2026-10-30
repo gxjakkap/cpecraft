@@ -17,6 +17,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -69,7 +70,7 @@ public final class GodItemCommand {
 			item.set(DataComponents.CUSTOM_NAME, Component.literal(customName));
 		}
 		if (!player.getInventory().add(item)) {
-			player.drop(item, false);
+			player.drop(item, false, Prediction.PREDICTED);
 		}
 
 		ctx.getSource().sendSuccess(() -> Component.literal("Gave yourself " + name + "."), true);

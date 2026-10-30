@@ -9,7 +9,7 @@ Minecraft server: LuckPerms-gated admin commands, a student-ID whitelist
 verification flow that freezes unverified players, an admin-settable MOTD
 with light markdown formatting, and CPE batch → LuckPerms group binding.
 
-Target stack: Minecraft 26.2, Fabric Loader >=0.19.3, Fabric API, Java 25,
+Target stack: Minecraft 26.3, Fabric Loader >=0.20.1, Fabric API, Java 25,
 **Mojang's official mappings** (Fabric dropped Yarn as of MC 26.1 — code
 uses Mojang-mapped names like `ServerPlayer`/`CommandSourceStack`, not Yarn
 names like `ServerPlayerEntity`/`ServerCommandSource`). Minecraft itself
@@ -42,7 +42,7 @@ calls a new API:
 
 ```
 # Merged, deobfuscated Minecraft jar (Mojang mappings):
-javap -classpath ~/.gradle/caches/fabric-loom/26.2/minecraft-merged.jar <fully.qualified.ClassName>
+javap -classpath ~/.gradle/caches/fabric-loom/26.3/minecraft-merged.jar <fully.qualified.ClassName>
 
 # Any Fabric API module jar (find the exact one first):
 find ~/.gradle/caches -iname "fabric-<module>-*.jar" | grep -v sources

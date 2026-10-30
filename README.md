@@ -6,7 +6,7 @@ flow, and CPE batch → LuckPerms group binding.
 
 ## Requirements
 
-- Minecraft 26.2, Fabric Loader >=0.19.3, Fabric API, Java 25
+- Minecraft 26.3, Fabric Loader >=0.20.1, Fabric API, Java 25
 - [LuckPerms for Fabric](https://luckperms.net/download) installed on the
   server (recommended, not required — without it, commands fall back to
   vanilla op-level 2 (GAMEMASTERS) and batch group auto-assignment is

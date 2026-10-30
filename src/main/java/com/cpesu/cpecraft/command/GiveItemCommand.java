@@ -13,6 +13,7 @@ import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 
 import com.cpesu.cpecraft.permission.CpecraftPermissions;
@@ -37,7 +38,7 @@ public final class GiveItemCommand {
 		ItemStack stack = input.createItemStack(count);
 
 		if (!target.getInventory().add(stack)) {
-			target.drop(stack, false);
+			target.drop(stack, false, Prediction.PREDICTED);
 		}
 
 		ctx.getSource().sendSuccess(() -> Component.literal(
